@@ -1,38 +1,121 @@
 ﻿using UnityEngine;
+using System;
+using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 public class EntityController : MonoBehaviour {
 
-    public GameController gcont;
+    protected GameController gcont;
+    protected AStarPath pather;
+    protected Renderer rend;
+    public float speed = 3;
+    
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    public enum States { onSquare, jumping, doneWithRound }
+    public States currentState;
 
-    void truePosition()
+    // Use this for initialization
+    protected void Start ()
     {
-
+        currentState = States.onSquare;
+        pather = new AStarPath(getNeighbouringSquares);
+        gcont = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+        rend = GetComponent<Renderer>();
     }
 
-    void MoveTo(Vector3 pos)
+    protected List<Vector3> getNeighbouringSquares(Vector3 from)
     {
-        transform.position = pos;
+        var directions = new List<Direction> { Direction.North, Direction.South, Direction.East, Direction.West };
+        return directions.Select(h => gcont.transformPosition(from, h)).Where(h => gcont.checkIfTilePassable(h)).ToList();
     }
-	
-    public void attemptToMove (Direction dir)
+
+
+    // Update is called once per frame
+    protected void Update()
     {
-        var newpos = gcont.transformPosition(transform.position, dir);
+        if (currentState == States.onSquare)
+            OnSquareUpdate();
+        else if (currentState == States.jumping)
+            JumpingUpdate();
+        else if (currentState == States.doneWithRound)
+            doneWithRoundUpdate();
+    }
+    
+    virtual protected void OnSquareUpdate()
+    {
+    }
+    
+    virtual protected void JumpingUpdate()
+    {
+    }
+    
+    virtual protected void doneWithRoundUpdate()
+    {
+    }
+
+    public Vector3 boardPosition()
+    {
+        return gcont.getBoardPosition(transform.position);
+    }
+
+    public Vector3 worldPosition()
+    {
+        return transform.position;
+    }
+    
+    
+	
+    public void attemptToMove(Direction dir)
+    {
+        var newpos = gcont.transformPosition(worldPosition(), dir);
         if (gcont.checkIfTilePassable(newpos))
         {
-            MoveTo(newpos);
+            StartCoroutine(JumpTo(newpos));
         }
     }
 
-    
+    public void attemptToMove(Vector3 pos)
+    {
+        if (gcont.checkIfTilePassable(pos))
+        {
+            StartCoroutine(JumpTo(pos));
+        }
+    }
 
-    // Update is called once per frame
-    void Update () {
-	
-	}
+
+    public void moveTo(Vector3 pos)
+    {
+        transform.position  = pos;
+    }
+
+
+    virtual public IEnumerator JumpTo(Vector3 pos, float jumpspeed = -1)
+    {
+        currentState = States.jumping;
+        Vector3 originalpos = transform.position;
+        rend.sortingOrder = 1;
+        jumpspeed = jumpspeed == -1 ? speed : jumpspeed;
+        for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / ((originalpos - pos).magnitude / jumpspeed))
+        {
+            // position
+            float lerp = 1f - Mathf.Cos(t * Mathf.PI * 0.5f);     // ease in
+            lerp = Mathf.Sin(lerp * Mathf.PI * 0.5f);             // ease out
+            moveTo(Vector3.Lerp(originalpos, pos, lerp));
+
+            // scale 
+            lerp = Mathf.PingPong(t * 2, 1);
+            lerp = Mathf.Sin(lerp * Mathf.PI * 0.5f);
+            transform.localScale = Vector3.Lerp(new Vector3(1f, 1f, 1f), new Vector3(1.3f, 1.3f, 1f), lerp);
+
+            yield return null;
+        }
+        
+        moveTo(pos);
+        rend.sortingOrder = 0;
+        currentState = States.onSquare;
+        yield break;
+    }
+
+
 }

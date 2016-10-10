@@ -6,6 +6,8 @@ public enum Direction { North, NorthEast, East, SouthEast, South, SouthWest, Wes
 
 public class GameController : MonoBehaviour {
 
+
+
     Renderer rend;
     Rigidbody2D body;
 
@@ -25,7 +27,8 @@ public class GameController : MonoBehaviour {
 
     public bool checkIfTilePassable(Vector3 pos)
     {
-        return !map.GetComponent<Tilemap>().GetTile((int)getBoardPosition(pos).x, (int)getBoardPosition(pos).y).paramContainer.GetBoolParam("Impassable");
+        var a = map.GetComponent<Tilemap>();
+        return !a.GetTile((int)getBoardPosition(pos).x, (int)getBoardPosition(pos).y).paramContainer.GetBoolParam("Impassable");
     }
 
     public Vector3 transformPosition(Vector3 basePos, Direction dir)

@@ -5,15 +5,22 @@ using System.Linq;
 
 public class PlayerController : EntityController
 {
-
     Dictionary<string, Direction> movements;
 	// Use this for initialization
-	void Start () {
-	    
+	public new void Start () {
+        base.Start();
 	}
 
+
+    protected new void Update()
+    {
+        base.Update();
+    }
+
     // Update is called once per frame
-    void Update() {
+    protected override void OnSquareUpdate()
+    {
+        base.OnSquareUpdate();
         /*movements = new Dictionary<List<string>, Direction>()
         {
             {["w", Direction.North },
