@@ -84,7 +84,8 @@ public class RobotController : EntityController
                 var o = raycastHit2D.collider.gameObject;
                 if (gcont.checkIfTilePassable(o.transform.position))
                 {
-                    if (!squaresToReturn.Contains(o)) squaresToReturn.Add(o);
+                    if (!squaresToReturn.Contains(o))
+                        squaresToReturn.Add(o);
                 }
                 else
                     break;

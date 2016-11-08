@@ -10,6 +10,7 @@ public class EntityController : MonoBehaviour {
     protected AStarPath pather;
     protected Renderer rend;
     public float speed = 3;
+    public float lookTurnSpeed = 3;
     protected Vector3 lookingDirection = Vector3.up;
 
     public enum States { onSquare, jumping, doneWithRound }
@@ -88,10 +89,11 @@ public class EntityController : MonoBehaviour {
 
     virtual public void whileMoving(Vector3 moveTo)
     {
-       // lookingDirection = Vector3.Lerp(lookingDirection, transform.position - moveTo, 5 * Time.deltaTime);
+       
 
        if (moveTo != transform.position)
-            lookingDirection = moveTo - transform.position;
+            //lookingDirection = moveTo - transform.position;
+            lookingDirection = Vector3.Lerp(lookingDirection, moveTo - transform.position, lookTurnSpeed * Time.deltaTime);
     }
 
     virtual public IEnumerator JumpTo(Vector3 pos, float jumpspeed = -1)
