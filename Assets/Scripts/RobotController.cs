@@ -63,7 +63,7 @@ public class RobotController : EntityController
         gcont.clearBoardColors();
         foreach (var tile in squaresVisible())
         {
-            tile.GetComponent<SpriteRenderer>().color = visibleColor;
+            tile.GetComponent<SpriteRenderer>().color = Color.Lerp(visibleColor, Color.white, (transform.position - tile.transform.position).magnitude / (visionDistance + 2f));
         }
     }
 

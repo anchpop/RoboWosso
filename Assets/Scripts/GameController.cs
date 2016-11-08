@@ -8,8 +8,6 @@ using CreativeSpore.SuperTilemapEditor;
 public enum Direction { North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest }
 
 public class GameController : MonoBehaviour {
-    Renderer rend;
-    Rigidbody2D body;
 
     public Tilemap map;
     public List<GameObject> tiles;
@@ -18,8 +16,6 @@ public class GameController : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        rend = GetComponent<Renderer>();
-        body = GetComponent<Rigidbody2D>();
         tiles = GameObject.FindGameObjectsWithTag("Tile").ToList();
     }
 
