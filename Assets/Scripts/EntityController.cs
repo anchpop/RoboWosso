@@ -10,7 +10,7 @@ public class EntityController : MonoBehaviour {
     protected AStarPath pather;
     protected Renderer rend;
     public float speed = 3;
-    
+    protected Vector3 lookingDirection = Vector3.up;
 
     public enum States { onSquare, jumping, doneWithRound }
     public States currentState;
@@ -69,10 +69,7 @@ public class EntityController : MonoBehaviour {
     public void attemptToMove(Direction dir)
     {
         var newpos = gcont.transformPosition(worldPosition(), dir);
-        if (gcont.checkIfTilePassable(newpos))
-        {
-            StartCoroutine(JumpTo(newpos));
-        }
+        attemptToMove(newpos);
     }
 
     public void attemptToMove(Vector3 pos)
@@ -89,6 +86,13 @@ public class EntityController : MonoBehaviour {
         transform.position  = pos;
     }
 
+    virtual public void whileMoving(Vector3 moveTo)
+    {
+       // lookingDirection = Vector3.Lerp(lookingDirection, transform.position - moveTo, 5 * Time.deltaTime);
+
+       if (moveTo != transform.position)
+            lookingDirection = moveTo - transform.position;
+    }
 
     virtual public IEnumerator JumpTo(Vector3 pos, float jumpspeed = -1)
     {
@@ -108,6 +112,8 @@ public class EntityController : MonoBehaviour {
             lerp = Mathf.Sin(lerp * Mathf.PI * 0.5f);
             transform.localScale = Vector3.Lerp(new Vector3(1f, 1f, 1f), new Vector3(1.3f, 1.3f, 1f), lerp);
 
+            whileMoving(pos);
+
             yield return null;
         }
         
@@ -117,5 +123,8 @@ public class EntityController : MonoBehaviour {
         yield break;
     }
 
+    
+
 
 }
+

@@ -1,23 +1,34 @@
 ﻿using UnityEngine;
+using System;
+using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using CreativeSpore.SuperTilemapEditor;
 
 public enum Direction { North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest }
 
 public class GameController : MonoBehaviour {
-
-
-
     Renderer rend;
     Rigidbody2D body;
 
     public Tilemap map;
+    public List<GameObject> tiles;
+    public Dictionary<Vector3, TileController> tilesDict = new Dictionary<Vector3, TileController>();
 
 	// Use this for initialization
 	void Start ()
     {
         rend = GetComponent<Renderer>();
         body = GetComponent<Rigidbody2D>();
+        tiles = GameObject.FindGameObjectsWithTag("Tile").ToList();
+    }
+
+    public void clearBoardColors()
+    {
+        foreach(var tile in tiles)
+        {
+            tile.GetComponent<SpriteRenderer>().color = Color.white;
+        }
     }
 
     public Vector3 getBoardPosition(Vector2 vec)
@@ -48,4 +59,31 @@ public class GameController : MonoBehaviour {
     void Update () {
 	
 	}
+
+
+    public void registerTile(TileController t)
+    {
+        tilesDict.Add(t.transform.position, t);
+    }
+
+    public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+    {
+        var dir = point - pivot; // get point direction relative to pivot
+        dir = Quaternion.Euler(angles) * dir; // rotate it
+        point = dir + pivot; // calculate rotated point
+        return point; // return it
+    }
+
+    public static float Angle(Vector3 p_vector2)
+    {
+        if (p_vector2.x < 0)
+        {
+            return 360 - (Mathf.Atan2(p_vector2.x, p_vector2.y) * Mathf.Rad2Deg * -1);
+        }
+        else
+        {
+            return Mathf.Atan2(p_vector2.x, p_vector2.y) * Mathf.Rad2Deg;
+        }
+    }
+
 }
